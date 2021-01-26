@@ -2,30 +2,52 @@
 class Storage {
   constructor(params = {}) {
     const {
-      st = localStorage,
       key,
+      st = null,
+      expire = null,
       onChange = () => {},
       onFetch = async () => {},
     } = params;
 
-    if (!key) {
-      throw new Error("key undefined");
+    if (!key && st) {
+      throw new Error("Key undefined.");
     }
 
     this.__st = st;
     this.__key = key;
+    this.__expire = expire;
     this.onChange = onChange;
     this.onFetch = onFetch;
+
+    this.__data = null;
+    this.__expireAt = null;
 
     this.listenerChangeStorage();
   }
 
   get data() {
-    return JSON.parse(this.__st.getItem(this.__key));
+    if (this.__expireAt && Date.now() > this.__expireAt) {
+      this.clear();
+    }
+
+    return this.__st ? JSON.parse(this.__st.getItem(this.__key)) : this.__data;
   }
   set data(el) {
     try {
-      this.__st.setItem(this.__key, JSON.stringify(el));
+      if (!Array.isArray(el)) {
+        throw new Error("Unsupported data type, we recommend using array.");
+      }
+
+      if (this.__expire) {
+        this.__expireAt = Date.now() + this.__expire;
+      }
+
+      if (this.__st) {
+        this.__st.setItem(this.__key, JSON.stringify(el));
+      } else {
+        this.__data = el;
+      }
+
       this.onChange(this);
     } catch (error) {
       console.error(error);
@@ -33,13 +55,12 @@ class Storage {
   }
 
   count() {
-    return [].concat(this.data).length;
+    return this.data.length;
   }
 
   clear() {
     try {
-      this.__st.removeItem(this.__key);
-      this.onChange(this);
+      this.data = [];
       return this;
     } catch (error) {
       console.error(error);
@@ -48,7 +69,7 @@ class Storage {
 
   push(...params) {
     try {
-      this.data = [].concat(this.data || [], params);
+      this.data = [].concat(this.data, params);
       return this;
     } catch (error) {
       console.error(error);
@@ -57,7 +78,7 @@ class Storage {
 
   remove(ind) {
     try {
-      let _arr = this.data;
+      const _arr = [...this.data];
       _arr.splice(parseInt(ind), 1);
       this.data = _arr;
 
@@ -77,7 +98,6 @@ class Storage {
 
   find(fn = (v) => v) {
     try {
-      if (!Array.isArray(this.data)) return this.data;
       return this.data.find(fn);
     } catch (error) {
       console.error(error);
@@ -86,7 +106,6 @@ class Storage {
 
   filter(fn = (v) => v) {
     try {
-      if (!Array.isArray(this.data)) return this.data;
       return this.data.filter(fn);
     } catch (error) {
       console.error(error);
@@ -95,7 +114,6 @@ class Storage {
 
   sort(fn = () => {}) {
     try {
-      if (!Array.isArray(this.data)) return this.data;
       return (this.data = this.data.sort(fn));
     } catch (error) {
       console.error(error);
@@ -103,15 +121,17 @@ class Storage {
   }
 
   listenerChangeStorage() {
-    if (this.__st === localStorage)
+    if (this.__st === localStorage) {
       window.addEventListener("storage", (ev) => {
         if (ev.key === this.__key) this.onChange(this);
       });
+    }
   }
 
   async fetch() {
     try {
-      return (this.data = await this.onFetch());
+      const ret = await this.onFetch();
+      return (this.data = ret);
     } catch (error) {
       console.error(error);
     }
