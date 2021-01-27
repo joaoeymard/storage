@@ -59,65 +59,52 @@ class Storage {
   }
 
   clear() {
-    try {
-      this.data = [];
-      return this;
-    } catch (error) {
-      console.error(error);
-    }
+    this.data = [];
+
+    return this;
   }
 
   push(...params) {
-    try {
-      this.data = [].concat(this.data, params);
-      return this;
-    } catch (error) {
-      console.error(error);
-    }
+    this.data = [].concat(this.data, params);
+
+    return this;
   }
 
   remove(ind) {
     try {
-      const _arr = [...this.data];
-      _arr.splice(parseInt(ind), 1);
-      this.data = _arr;
+      const aux = [...this.data];
+      aux.splice(parseInt(ind), 1);
+      this.data = aux;
 
       return this;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  map(fn) {
-    try {
-      return (this.data = this.data.map(fn));
     } catch (error) {
       console.error(error);
     }
   }
 
   find(fn = (v) => v) {
-    try {
-      return this.data.find(fn);
-    } catch (error) {
-      console.error(error);
-    }
+    return this.data.find(fn) || {};
   }
 
-  filter(fn = (v) => v) {
-    try {
-      return this.data.filter(fn);
-    } catch (error) {
-      console.error(error);
-    }
+  map(fn = (v) => v, { save }) {
+    const arrMap = this.data.map(fn);
+    if (save) this.data = arrMap;
+
+    return arrMap;
   }
 
-  sort(fn = () => {}) {
-    try {
-      return (this.data = this.data.sort(fn));
-    } catch (error) {
-      console.error(error);
-    }
+  filter(fn = (v) => v, { save }) {
+    const arrFilter = this.data.filter(fn);
+    if (save) this.data = arrFilter;
+
+    return arrFilter;
+  }
+
+  sort(fn = () => {}, { save }) {
+    const arrSort = this.data.sort(fn);
+    if (save) this.data = arrSort;
+
+    return arrSort;
   }
 
   listenerChangeStorage() {
