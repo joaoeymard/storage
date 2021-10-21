@@ -20,3 +20,82 @@ const st = new Storage({
   key: "a", // Chave de identificação
 });
 ```
+
+## Funções uteis
+
+```js
+st.count(); // Lista a quantidade de registros salvos
+
+st.clear(); // Limpa o armazenamento
+
+st.setExpire(1000 * 3); // Atualiza o tempo para expirar os dados armazenados, em milisegundos
+```
+
+## Exemplos
+
+Armazene um novo registro
+
+```js
+st.insert({ id: 1, nome: "", idade: 1 });
+// { id: 1, nome: "", idade: 1 }
+```
+
+Atualize um registro
+
+```js
+st.findOneAndUpdate(
+  function (item, idx) {
+    return item.id === 1;
+  },
+  { nome: "Fulano" }
+);
+// { id: 1, nome: "Fulano", idade: 1 }
+
+st.findOneAndUpdate(
+  function (item, idx) {
+    return item.id === 1;
+  },
+  { idade: 10 }
+);
+// { id: 1, nome: "Fulano", idade: 10 }
+```
+
+Substitua um registro
+
+```js
+st.findOneAndReplace(
+  function (item, idx) {
+    return item.id === 1;
+  },
+  { id: 1, marca: "VW", modelo: "gol" }
+);
+// { id: 1, marca: "VW", modelo: "gol" }
+```
+
+Remova um registro
+
+```js
+// Localiza um registro e o exclui
+st.findOneAndRemove(function (item, idx) {
+  return item.id === 1;
+});
+
+// Remove o registro pela sua posição na lista
+st.removeByIndex(0);
+```
+
+Listando todos os registros
+
+```js
+st.getDataParsed(); // Retorna o objeto armazenado já convertido em json
+
+st.getDataArray(); // Retorna os dados armazenados obrigatoriamente como array
+```
+
+Buscando um registro
+
+```js
+st.find(function (item, idx) {
+  return item.id === 1;
+});
+```
