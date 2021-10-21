@@ -1,0 +1,27 @@
+{
+  "name": "storage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "storage.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "uglifyjs --output storage.min.js --mangle --compress -- storage.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaoeymard/storage.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joaoeymard/storage/issues"
+  },
+  "homepage": "https://github.com/joaoeymard/storage#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "uglify-js": "^3.14.2"
+  }
+}
